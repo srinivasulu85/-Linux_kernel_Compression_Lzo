@@ -1,0 +1,17 @@
+These macros mostly were used for error checking. Because error leaves less probably then normal operation. A few people make profiling or calculation to decide most used leaf... – 
+gavenkoa
+ May 4, 2012 at 21:12 
+65
+As regards the fragment "[...]that it is being run in a tight loop", many CPUs have a branch predictor, thus using these macros only helps the first time code is executed or when the history table is overwritten by a different branch with the same index into the branching table. In a tight loop, and assuming a branch goes one way most of the time, the branch predictor will likely begin guessing the correct branch very quickly. - your friend in pedantry. – 
+Ross Rogers
+ Nov 11, 2013 at 21:56
+15
+@RossRogers: What really happens is the compiler arranges the branches so the common case is the not-taken one. This is faster even when branch prediction does work. Taken branches are problematic for instruction-fetch and decode even when they're predicted perfectly. Some CPUs statically predict branches that aren't in their history table, usually with assume not-taken for forward branches. Intel CPUs don't work that way: they don't try to check that the predictor table entry is for this branch, they just use it anyway. A hot branch and a cold branch might alias the same entry... – 
+Peter Cordes
+ Feb 15, 2016 at 21:41
+26
+This answer is mostly obsolete since the main claim is that it helps branch prediction, and as @PeterCordes points out, in most modern hardware there is no implicit or explicit static branch prediction. In fact the hint is used by the compiler to optimize the code, whether that involves static branch hints, or any other type of optimization. For most architectures today, it is the "any other optimization" that matters, e.g., making hot paths contiguous, better scheduling the hot path, minimizing the size of the slow path, vectorizing only the expected path, etc, etc. – 
+BeeOnRope
+ Jan 18, 2017 at 21:54
+4
+@BeeOnRope because of cache prefetch and word size, there is still an advantage to running a program linearly. The next memory location will already be fetched and in cache, the branch target maybe or maybe not. With a 64 bit CPU you grab at least 64 bits at a time. Depending on DRAM interleave, it may be 2x 3x or more bits that get grabbed. –
